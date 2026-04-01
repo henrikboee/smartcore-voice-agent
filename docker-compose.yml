@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # SmartCore AI Voice Agent - powered by Pipecat + Gemini Flash 2.0
+    voice-agent:
+        build:
+              context: .
+                    dockerfile: Dockerfile
+                        container_name: smartcore-voice-agent
+                            restart: unless-stopped
+                                ports:
+                                      - "7860:7860"
+                                          env_file:
+                                                - .env
+                                                    environment:
+                                                          - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+                                                                - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+                                                                      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+                                                                            - DAILY_API_KEY=${DAILY_API_KEY}
+                                                                                  - DAILY_ROOM_URL=${DAILY_ROOM_URL}
+                                                                                      volumes:
+                                                                                            - ./logs:/app/logs
+                                                                                                healthcheck:
+                                                                                                      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+                                                                                                            interval: 30s
+                                                                                                                  timeout: 10s
+                                                                                                                        retries: 3
+                                                                                                                        
+                                                                                                                          # Optional: Redis for session management
+                                                                                                                            redis:
+                                                                                                                                image: redis:7-alpine
+                                                                                                                                    container_name: smartcore-redis
+                                                                                                                                        restart: unless-stopped
+                                                                                                                                            ports:
+                                                                                                                                                  - "6379:6379"
+                                                                                                                                                  
+                                                                                                                                                  networks:
+                                                                                                                                                    default:
+                                                                                                                                                        name: smartcore-network
